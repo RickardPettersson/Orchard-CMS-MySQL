@@ -1,0 +1,10 @@
+﻿Name: Tags
+AntiForgery: enabled
+Author: The Orchard Team
+Website: http://orchardproject.net
+Version: 1.2.41
+OrchardVersion: 1.2.41
+Description: The tags module is providing basic tagging for arbitrary content types. 
+FeatureDescription: Tag a content item.
+Dependencies: Settings
+Category: Navigation
