@@ -62,3 +62,7 @@ The function looks like this when i am done:
 Compile the project and copy Orchard.Framework.dll from the bin folder to the bin folder in Orchard CMS web that we fixed the MySQL on.
 
 I find this solution on stackoverflow: http://stackoverflow.com/questions/1061128/mysql-nhibernate-how-fix-the-error-column-reservedword-does-not-belong-to-t
+
+# Project information
+
+This project was done by Rickard Nordström Pettersson (www.RickardP.se) to a work project for Transticket AB (www.Transticket.se)
