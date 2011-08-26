@@ -65,4 +65,4 @@ I find this solution on stackoverflow: http://stackoverflow.com/questions/106112
 
 # Project information
 
-This project was done by Rickard Nordström Pettersson (www.RickardP.se) to a work project for Transticket AB (www.Transticket.se)
+This project was done by Rickard Pettersson (www.RickardP.se) to a work project for Transticket AB (www.Transticket.se)
