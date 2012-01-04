@@ -1,0 +1,5 @@
+D:\Orchard\Orchard.Soruce-rickardp\src\Orchard.Web\Modules\Orchard.MultiTenancy\bin\Orchard.MultiTenancy.dll
+D:\Orchard\Orchard.Soruce-rickardp\src\Orchard.Web\Modules\Orchard.MultiTenancy\bin\Orchard.MultiTenancy.pdb
+D:\Orchard\Orchard.Soruce-rickardp\src\Orchard.Web\Modules\Orchard.MultiTenancy\obj\Debug\ResolveAssemblyReference.cache
+D:\Orchard\Orchard.Soruce-rickardp\src\Orchard.Web\Modules\Orchard.MultiTenancy\obj\Debug\Orchard.MultiTenancy.dll
+D:\Orchard\Orchard.Soruce-rickardp\src\Orchard.Web\Modules\Orchard.MultiTenancy\obj\Debug\Orchard.MultiTenancy.pdb

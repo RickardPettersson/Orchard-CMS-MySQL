@@ -18,6 +18,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
     <TargetFrameworkProfile />
+    <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,25 +47,10 @@
     <Reference Include="ClaySharp">
       <HintPath>..\..\..\..\lib\claysharp\ClaySharp.dll</HintPath>
     </Reference>
-    <Reference Include="FluentNHibernate, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\lib\fluentnhibernate\FluentNHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data, Version=6.2.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>libs\MySQL\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate, Version=2.1.2.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\lib\fluentnhibernate\NHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.ComponentModel.DataAnnotations">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.SQLite">
-      <HintPath>libs\SQLite\System.Data.SQLite.DLL</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -81,8 +67,7 @@
     <Compile Include="Annotations\StringLengthMin.cs" />
     <Compile Include="Commands\SetupCommand.cs" />
     <Compile Include="Controllers\SetupController.cs" />
-    <Compile Include="Data\Providers\MySqlDataServicesProvider.cs" />
-    <Compile Include="Data\Providers\SqlLiteDataServicesProvider.cs" />
+    <Compile Include="Controllers\SetupDatabaseType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routes.cs" />
     <Compile Include="Services\ISetupService.cs" />

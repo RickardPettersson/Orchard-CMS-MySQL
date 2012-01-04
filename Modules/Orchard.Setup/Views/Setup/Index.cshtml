@@ -1,7 +1,7 @@
 ﻿@model Orchard.Setup.ViewModels.SetupViewModel
 @{
-    Script.Require("jquery").AtFoot();
-    Script.Include("setup.js").AtFoot();
+	Script.Require("jQuery");
+    Script.Include("setup.js");
 }
 <h1>@Html.TitleForPage(T("Get Started").ToString())</h1>
 
@@ -31,21 +31,24 @@ if (!Model.DatabaseIsPreconfigured) {
     <legend>@T("How would you like to store your data?")</legend>
         @Html.ValidationMessage("DatabaseOptions", "Unable to setup data storage")
     <div>
-        @Html.RadioButtonFor(svm => svm.DatabaseOptions, "SqlCe", new { id = "builtin" })
+        @Html.RadioButtonFor(svm => svm.DatabaseOptions, true, new { id = "builtin" })
         <label for="builtin" class="forcheckbox">@T("Use built-in data storage (SQL Server Compact)")</label>
     </div>
     <div>
-        @Html.RadioButtonFor(svm => svm.DatabaseOptions, "SQLite", new { id = "sqlite" })
-        <label for="sqlite" class="forcheckbox">@T("Use built-in data storage (SQLite)")</label>
-    </div>
-    <div>
-        @Html.RadioButtonFor(svm => svm.DatabaseOptions, "SqlServer", new { id = "sql" })
-        <label for="sql" class="forcheckbox">@T("Use an existing SQL Server (or SQL Express) database")</label>
+        @Html.RadioButtonFor(svm => svm.DatabaseOptions, false, new { id = "sql" })
+        <label for="sql" class="forcheckbox">@T("Use an existing SQL database")</label>
+        <div data-controllerid="sql">
+            <label for="DatabaseProviderName">@T("Database server type")</label>
+            @Html.DropDownListFor(svm => svm.DatabaseType, Enum.GetValues(typeof(Orchard.Setup.Controllers.SetupDatabaseType)).Cast<Orchard.Setup.Controllers.SetupDatabaseType>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }), new { id = "databaseType" })
+        </div>
         <div data-controllerid="sql">
             <label for="DatabaseConnectionString">@T("Connection string")</label>
             @Html.EditorFor(svm => svm.DatabaseConnectionString)
-            <span class="hint">
-            @T("Example:")<br />@T("Data Source=sqlServerName;Initial Catalog=dbName;Persist Security Info=True;User ID=userName;Password=password")
+            <span id="databaseType0" class="hint databaseTypeHint">
+            @T("SQL Server Example:")<br />@T("Data Source=sqlServerName;Initial Catalog=dbName;Persist Security Info=True;User ID=userName;Password=password")
+            </span>
+            <span id="databaseType1" class="hint databaseTypeHint" style="display: none">
+            @T("MySQL Example:")<br />@T("Server=sqlServerName;Port=3306;User Id=userName;Password=password;Persist Security Info=True;Database=dbName;Pooling=True;")
             </span>
         </div>
         <div data-controllerid="sql">
@@ -53,34 +56,19 @@ if (!Model.DatabaseIsPreconfigured) {
             @Html.EditorFor(svm => svm.DatabaseTablePrefix)
         </div>
     </div>
-    <div>
-        @Html.RadioButtonFor(svm => svm.DatabaseOptions, "MySql", new { id = "mysql" })
-        <label for="mysql" class="forcheckbox">@T("Use an existing MySQL database")</label>
-        <div data-controllerid="mysql">
-            <label for="MySqlDatabaseConnectionString">@T("Connection string")</label>
-            @Html.EditorFor(svm => svm.MySqlDatabaseConnectionString)
-            <span class="hint">
-            @T("Example:")<br />@T("Data Source=sqlServerName;Initial Catalog=dbName;Persist Security Info=True;User ID=userName;Password=password")
-            </span>
-        </div>
-        <div data-controllerid="mysql">
-            <label for="MySqlDatabaseTablePrefix">@T("Database Table Prefix")</label>
-            @Html.EditorFor(svm => svm.MySqlDatabaseTablePrefix)
-        </div>
-    </div>
 </fieldset>
 }
 <fieldset>
-    <legend>@T("Choose an Orchard Recipe")</legend>
-    <div>@T("Orchard Recipes allow you to setup your site with additional pre-configured options, features and settings out of the box")</div>	
-    <div>
+	<legend>@T("Choose an Orchard Recipe")</legend>
+	<div>@T("Orchard Recipes allow you to setup your site with additional pre-configured options, features and settings out of the box")</div>	
+	<div>
         <select id="@Html.FieldIdFor(m => m.Recipe)" name="@Html.FieldNameFor(m => m.Recipe)" class="recipe">
         @foreach(var recipe in Model.Recipes) {
             @Html.SelectOption(Model.Recipe, recipe.Name, recipe.Name, new { recipedescription = recipe.Description })
         }
         </select>
     </div>
-    <div id="recipedescription">@Model.RecipeDescription</div>
+	<div id="recipedescription">@Model.RecipeDescription</div>
 </fieldset>
 <div id="throbber">
     <div class="curtain"></div>

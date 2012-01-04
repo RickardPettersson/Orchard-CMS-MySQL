@@ -1,19 +1,8 @@
 ﻿Name: Setup
-Author: Andre Rodrigues
+Author: The Orchard Team
 Website: http://orchardproject.net
-Version: 1.0.0
-OrchardVersion: 1.0.0
+Version: 1.3.0
+OrchardVersion: 1.3.0
 Description: The setup module is creating the application's setup experience.
-Features:
-    Orchard.Setup:
-        Name: Setup
-        Description: Standard site setup. This feature is disabled automatically once setup is over.
-        Category: Core
-    Orchard.MySql:
-        Name: MySql
-        Description: MySQL Data provider.
-        Category: Core
-    Orchard.SQLite:
-        Name: SQLite
-        Description: SQLite Data provider.
-        Category: Core
+FeatureDescription: Standard site setup. This feature is disabled automatically once setup is over.
+Category: Core

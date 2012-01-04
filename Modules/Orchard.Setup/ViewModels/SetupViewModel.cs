@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using Orchard.Recipes.Models;
 using Orchard.Setup.Annotations;
+using Orchard.Setup.Controllers;
 
 namespace Orchard.Setup.ViewModels {
     public class SetupViewModel  {
         public SetupViewModel() {
-            DatabaseOptions = "SqlCe";
+            DatabaseOptions = true;
         }
 
         [SiteNameValid(maximumLength: 70)]
@@ -16,23 +17,12 @@ namespace Orchard.Setup.ViewModels {
         public string AdminPassword { get; set; }
         [PasswordConfirmationRequired]
         public string ConfirmPassword { get; set; }
-        public string DatabaseOptions { get; set; }
+        public bool DatabaseOptions { get; set; }
         [SqlDatabaseConnectionString]
         public string DatabaseConnectionString { get; set; }
-
         public string DatabaseTablePrefix { get; set; }
-
-        public string MySqlDatabaseConnectionString {
-            get { return DatabaseConnectionString; }
-            set { DatabaseConnectionString = value; }
-        }
-
-        public string MySqlDatabaseTablePrefix {
-            get { return DatabaseTablePrefix; }
-            set { DatabaseTablePrefix = value; }
-        }
-
         public bool DatabaseIsPreconfigured { get; set; }
+        public SetupDatabaseType DatabaseType { get; set; }
 
         public IEnumerable<Recipe> Recipes { get; set; }
         public string Recipe { get; set; }

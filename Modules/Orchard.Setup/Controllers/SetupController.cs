@@ -72,18 +72,14 @@ namespace Orchard.Setup.Controllers {
             var recipes = OrderRecipes(_setupService.Recipes());
 
             //TODO: Couldn't get a custom ValidationAttribute to validate two properties
-            if ((model.DatabaseOptions.Equals("SqlServer")
-                || model.DatabaseOptions.Equals("MySql"))
-                && string.IsNullOrEmpty(model.DatabaseConnectionString))
+            if (!model.DatabaseOptions && string.IsNullOrEmpty(model.DatabaseConnectionString))
                 ModelState.AddModelError("DatabaseConnectionString", T("A SQL connection string is required").Text);
 
             if (!String.IsNullOrWhiteSpace(model.ConfirmPassword) && model.AdminPassword != model.ConfirmPassword ) {
                 ModelState.AddModelError("ConfirmPassword", T("Password confirmation must match").Text);
             }
 
-            if((model.DatabaseOptions.Equals("SqlServer")
-                || model.DatabaseOptions.Equals("MySql"))
-                && !String.IsNullOrWhiteSpace(model.DatabaseTablePrefix)) {
+            if(!model.DatabaseOptions && !String.IsNullOrWhiteSpace(model.DatabaseTablePrefix)) {
                 model.DatabaseTablePrefix = model.DatabaseTablePrefix.Trim();
                 if(!Char.IsLetter(model.DatabaseTablePrefix[0])) {
                     ModelState.AddModelError("DatabaseTablePrefix", T("The table prefix must begin with a letter").Text);
@@ -108,11 +104,32 @@ namespace Orchard.Setup.Controllers {
             }
 
             try {
+                string providerName = null;
+
+                if (model.DatabaseOptions)
+                    providerName = "SqlCe";
+                else
+                {
+                    switch (model.DatabaseType)
+                    {
+                        case SetupDatabaseType.SqlServer:
+                            providerName = "SqlServer";
+                            break;
+
+                        case SetupDatabaseType.MySQL:
+                            providerName = "MySql";
+                            break;
+
+                        default:
+                            throw new ApplicationException("Unknown database type: " + model.DatabaseType);
+                    }
+                }
+
                 var setupContext = new SetupContext {
                     SiteName = model.SiteName,
                     AdminUsername = model.AdminUsername,
                     AdminPassword = model.AdminPassword,
-                    DatabaseProvider = model.DatabaseOptions,
+                    DatabaseProvider = providerName,
                     DatabaseConnectionString = model.DatabaseConnectionString,
                     DatabaseTablePrefix = model.DatabaseTablePrefix,
                     EnabledFeatures = null, // default list

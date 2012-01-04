@@ -7,14 +7,15 @@ using Orchard.ContentManagement;
 using Orchard.Core.Settings.Descriptor.Records;
 using Orchard.Core.Settings.Models;
 using Orchard.Data;
+using Orchard.Data.Migration;
 using Orchard.Data.Migration.Interpreters;
 using Orchard.Data.Migration.Schema;
 using Orchard.Environment;
 using Orchard.Environment.Configuration;
-using Orchard.Environment.ShellBuilders;
 using Orchard.Environment.Descriptor;
 using Orchard.Environment.Descriptor.Models;
-using Orchard.FileSystems.AppData;
+using Orchard.Environment.ShellBuilders;
+using Orchard.Environment.State;
 using Orchard.Localization;
 using Orchard.Localization.Services;
 using Orchard.Recipes.Models;
@@ -22,9 +23,6 @@ using Orchard.Recipes.Services;
 using Orchard.Reports.Services;
 using Orchard.Security;
 using Orchard.Settings;
-using Orchard.Environment.State;
-using Orchard.Data.Migration;
-using Orchard.Themes.Services;
 using Orchard.Utility.Extensions;
 
 namespace Orchard.Setup.Services {
@@ -37,7 +35,6 @@ namespace Orchard.Setup.Services {
         private readonly IProcessingEngine _processingEngine;
         private readonly IRecipeHarvester _recipeHarvester;
         private readonly IEnumerable<Recipe> _recipes;
-        private readonly IShellDescriptorCache _shellDescriptorCache;
 
         public SetupService(
             ShellSettings shellSettings,
@@ -46,9 +43,7 @@ namespace Orchard.Setup.Services {
             IShellContainerFactory shellContainerFactory,
             ICompositionStrategy compositionStrategy,
             IProcessingEngine processingEngine,
-            IRecipeHarvester recipeHarvester,
-            IShellDescriptorCache shellDescriptorCache) {
-
+            IRecipeHarvester recipeHarvester) {
             _shellSettings = shellSettings;
             _orchardHost = orchardHost;
             _shellSettingsManager = shellSettingsManager;
@@ -56,8 +51,6 @@ namespace Orchard.Setup.Services {
             _compositionStrategy = compositionStrategy;
             _processingEngine = processingEngine;
             _recipeHarvester = recipeHarvester;
-            _shellDescriptorCache = shellDescriptorCache;
-
             _recipes = _recipeHarvester.HarvestRecipes("Orchard.Setup");
             T = NullLocalizer.Instance;
         }
@@ -80,9 +73,9 @@ namespace Orchard.Setup.Services {
                     // Framework
                     "Orchard.Framework",
                     // Core
-                    "Common", "Containers", "Contents", "Dashboard", "Feeds", "HomePage", "Navigation", "Reports", "Routable", "Scheduling", "Settings", "Shapes",
+                    "Common", "Containers", "Contents", "Dashboard", "Feeds", "HomePage", "Navigation", "Reports", "Routable", "Scheduling", "Settings", "Shapes", "Title",
                     // Modules
-                    "Orchard.Pages", "Orchard.Themes", "Orchard.Users", "Orchard.Roles", "Orchard.Modules", "Orchard.MySql", "Orchard.SQLite",
+                    "Orchard.Pages", "Orchard.Themes", "Orchard.Users", "Orchard.Roles", "Orchard.Modules", 
                     "PackagingServices", "Orchard.Packaging", "Gallery", "Orchard.Recipes",
                 };
 
@@ -116,40 +109,48 @@ namespace Orchard.Setup.Services {
             var shellBlueprint = _compositionStrategy.Compose(shellSettings, shellDescriptor);
 
             // initialize database explicitly, and store shell descriptor
-            var bootstrapLifetimeScope = _shellContainerFactory.CreateContainer(shellSettings, shellBlueprint);
+            using (var bootstrapLifetimeScope = _shellContainerFactory.CreateContainer(shellSettings, shellBlueprint))
+            {
 
-            using (var environment = bootstrapLifetimeScope.CreateWorkContextScope()) {
+                using (var environment = bootstrapLifetimeScope.CreateWorkContextScope())
+                {
 
-                // check if the database is already created (in case an exception occured in the second phase)
-                var shellDescriptorRepository = environment.Resolve<IRepository<ShellDescriptorRecord>>();
-                try {
-                    shellDescriptorRepository.Get(x => true);
-                }
-                catch {
-                    var schemaBuilder = new SchemaBuilder(environment.Resolve<IDataMigrationInterpreter>());
-                    var reportsCoordinator = environment.Resolve<IReportsCoordinator>();
-
-                    reportsCoordinator.Register("Data Migration", "Setup", "Orchard installation");
-
-                    schemaBuilder.CreateTable("Orchard_Framework_DataMigrationRecord",
-                                              table => table
-                                                           .Column<int>("Id", column => column.PrimaryKey().Identity())
-                                                           .Column<string>("DataMigrationClass")
-                                                           .Column<int>("Version"));
-
-                    var dataMigrationManager = environment.Resolve<IDataMigrationManager>();
-                    dataMigrationManager.Update("Settings");
-
-                    foreach (var feature in context.EnabledFeatures) {
-                        dataMigrationManager.Update(feature);
+                    // check if the database is already created (in case an exception occured in the second phase)
+                    var shellDescriptorRepository = environment.Resolve<IRepository<ShellDescriptorRecord>>();
+                    try
+                    {
+                        shellDescriptorRepository.Get(x => true);
                     }
+                    catch
+                    {
+                        var schemaBuilder = new SchemaBuilder(environment.Resolve<IDataMigrationInterpreter>());
+                        var reportsCoordinator = environment.Resolve<IReportsCoordinator>();
 
-                    environment.Resolve<IShellDescriptorManager>().UpdateShellDescriptor(
-                        0,
-                        shellDescriptor.Features,
-                        shellDescriptor.Parameters);
+                        reportsCoordinator.Register("Data Migration", "Setup", "Orchard installation");
+
+                        schemaBuilder.CreateTable("Orchard_Framework_DataMigrationRecord",
+                                                  table => table
+                                                               .Column<int>("Id", column => column.PrimaryKey().Identity())
+                                                               .Column<string>("DataMigrationClass")
+                                                               .Column<int>("Version"));
+
+                        var dataMigrationManager = environment.Resolve<IDataMigrationManager>();
+                        dataMigrationManager.Update("Settings");
+
+                        foreach (var feature in context.EnabledFeatures)
+                        {
+                            dataMigrationManager.Update(feature);
+                        }
+
+                        environment.Resolve<IShellDescriptorManager>().UpdateShellDescriptor(
+                            0,
+                            shellDescriptor.Features,
+                            shellDescriptor.Parameters);
+                    }
                 }
             }
+
+
 
             // in effect "pump messages" see PostMessage circa 1980
             while ( _processingEngine.AreTasksPending() )
@@ -161,23 +162,6 @@ namespace Orchard.Setup.Services {
 
             // must mark state as Running - otherwise standalone enviro is created "for setup"
             shellSettings.State = new TenantState("Running");
-            
-            var knownDescriptor = _shellDescriptorCache.Fetch(shellSettings.Name);
-            if (knownDescriptor == null) {
-                var setupDescriptor = new ShellDescriptor() {
-                    SerialNumber = -1,
-                    Features = new[] {
-                        new ShellFeature {Name = "Orchard.MySql"},
-                        new ShellFeature {Name = "Orchard.SQLite"},
-                        new ShellFeature {Name = "Orchard.Framework"},
-                        new ShellFeature {Name = "Settings"},
-                },
-                    Parameters = Enumerable.Empty<ShellParameter>(),
-                };
-
-                _shellDescriptorCache.Store(shellSettings.Name, shellDescriptor);
-            }
-
             using (var environment = _orchardHost.CreateStandaloneEnvironment(shellSettings)) {
                 try {
                     executionId = CreateTenantData(context, environment);
@@ -189,12 +173,13 @@ namespace Orchard.Setup.Services {
             }
 
             _shellSettingsManager.SaveSettings(shellSettings);
-
+ 
             return executionId;
         }
 
         private string CreateTenantData(SetupContext context, IWorkContextScope environment) {
             string executionId = null;
+
             // create superuser
             var membershipService = environment.Resolve<IMembershipService>();
             var user =
@@ -214,18 +199,14 @@ namespace Orchard.Setup.Services {
             siteSettings.Record.SuperUser = context.AdminUsername;
             siteSettings.Record.SiteCulture = "en-US";
 
-            // set site theme
-            var themeService = environment.Resolve<ISiteThemeService>();
-            themeService.SetSiteTheme("TheThemeMachine");
-
             // add default culture
             var cultureManager = environment.Resolve<ICultureManager>();
             cultureManager.AddCulture("en-US");
 
             var recipeManager = environment.Resolve<IRecipeManager>();
-            executionId = recipeManager.Execute(Recipes().Where(r => r.Name == context.Recipe).FirstOrDefault());
+            executionId = recipeManager.Execute(Recipes().Where(r => r.Name.Equals(context.Recipe, StringComparison.OrdinalIgnoreCase)).FirstOrDefault());
 
-            //null check: temporary fix for running setup in command line
+            // null check: temporary fix for running setup in command line
             if (HttpContext.Current != null) {
                 authenticationService.SignIn(user, true);
             }
