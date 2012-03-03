@@ -1,0 +1,172 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Orchard.Alias;
+using Orchard.Autoroute.Models;
+using Orchard.Tokens;
+using Orchard.Autoroute.Settings;
+using Orchard.Data;
+using Orchard.ContentManagement.MetaData;
+using System.Web.Routing;
+using Orchard.Logging;
+using Orchard.ContentManagement;
+
+namespace Orchard.Autoroute.Services {
+    public class AutorouteService : IAutorouteService {
+
+        private readonly IAliasService _aliasService;
+        private readonly ITokenizer _tokenizer;
+        private readonly IContentDefinitionManager _contentDefinitionManager;
+
+        public AutorouteService(
+            IAliasService aliasService,
+            ITokenizer tokenizer,
+            IContentDefinitionManager contentDefinitionManager
+            ) {
+                _aliasService = aliasService;
+                _tokenizer = tokenizer;
+                _contentDefinitionManager = contentDefinitionManager;
+                Logger = NullLogger.Instance;
+        }
+
+        public ILogger Logger { get; set; }
+
+        public string GenerateAlias(IContent item, string name, string pattern, RouteValueDictionary routeValues) {
+
+            var part = item.As<AutoroutePart>();
+            if (part == null) return null;
+
+            // Generate pattern
+            var aliasSource = "Autoroute:" + name + ":" + item.Id;
+            var path = RegisterAlias(aliasSource, pattern, routeValues, BuildTokenContext(item));
+             /*
+            if (newPath!=part.Alias) {
+                // TODO: (PH:Autoroute) Not right here but - need to be able to hook into an alias changing so we can register a redirect
+                _autorouteEventHandler.Changed(part, part.Alias, newPath);
+            }*/
+            // Store new alias
+           // part.Alias = newPath;
+            return path;
+
+        }
+
+        private IDictionary<string, object> BuildTokenContext(IContent item) {
+            return new Dictionary<string, object> { { "Content", item } };
+        }
+
+        public void RegenerateAlias(string aliasSource) {
+            var info = ParseSource(aliasSource);
+            if (info == null) return;
+            /* TODO:
+            if (pattern == null) {
+                if (info.Item == null) return;
+                pattern = GetPattern(info.Scope, info.Name, info.Item);
+                if (pattern == null) return;
+            }
+
+            // TODO: Can fire "changed" event with impunity right here
+            // Remove old alias
+            _aliasService.DeleteBySource(aliasSource);
+
+            if (info.Item!=null) {
+            var patternDef = _describe.Value.Descriptors
+                .Where(d => d.Scope == pattern.PatternScope && d.PatternName == pattern.PatternName).FirstOrDefault();
+
+                if (patternDef != null)
+                    RegisterAlias(aliasSource, pattern.Pattern, patternDef.RouteFactory(info.Item), BuildTokenContext(patternDef.ScopeDescriptor,info.Item));
+            }
+            */
+        }
+
+        public void RemoveAliases(IContent item) {
+
+            // TODO: 
+            // Delete any existing aliases
+            /* var aliases = _aliasService.List(scope);
+            foreach (var a in aliases) {
+                _aliasService.Delete(a.Item1);
+            }*/
+        }
+
+        protected string RegisterAlias(string aliasSource, string pattern, RouteValueDictionary routeValues, IDictionary<string, object> tokenContext) {
+
+            try {
+
+                // Convert the pattern and route values via tokens
+                var path = _tokenizer.Replace(pattern, tokenContext,
+                    // Force URL encoded patterns
+                    // TODO: (PH) Does Alias already Url encode? Need to test we're not double-encoding. And also check we're preventing all non-valid characters.
+                    new ReplaceOptions { Encoding = ReplaceOptions.UrlEncode });
+
+                // Tokenize all route values
+                // TODO: Review. Probably don't need to do this (but could be useful)
+                var values = new RouteValueDictionary(routeValues.ToDictionary<KeyValuePair<string, object>, string, object>(kv => kv.Key,
+                    kv => _tokenizer.Replace(kv.Value.ToString(), tokenContext)));
+                _aliasService.Set(path, values, aliasSource);
+                return path;
+
+            }
+
+            catch (Exception ex) {
+                Logger.Error(ex, "Failure whilst tokenizing route '{0}' from pattern '{1}'", aliasSource, pattern);
+            }
+
+            return null;
+        }
+
+        ParsedSourceInfo ParseSource(string source) {
+            if (string.IsNullOrWhiteSpace(source)) return null;
+            var parts = source.Split(':');
+            // Must consist of Autoroute:Scope:Name:Id
+            if (parts.Length < 3) {
+                return null;
+            }
+            if (parts[0] != "Autoroute") return null;
+            var info = new ParsedSourceInfo() {
+                Name = parts[1],
+                Id = Convert.ToInt32(parts[2])
+            };
+            return info;
+        }
+
+        class ParsedSourceInfo {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+<<<<<<< local
+
+        #region All bits specific to AutoroutePart
+
+        // TODO: Move as much as possible out to separate handlers
+
+        public string PatternToUse(AutoroutePart part) {
+            //var settings = part.TypePartDefinition.Settings.TryGetModel<AutorouteTypePartSettings>();
+            string pattern = "";
+            //var patternRecord = part.StandardPattern;
+            //if (patternRecord != null) {
+            //    pattern = patternRecord.Pattern;
+            //}
+            //if (!string.IsNullOrWhiteSpace(part.CustomPattern)) {
+            //    pattern = part.CustomPattern;
+            //}
+            return pattern;
+        }
+
+        public void AssignPattern(string contentType, string patternName) {
+            var pattern = GetPattern(patternName);
+            if (pattern == null) {
+                throw new InvalidOperationException(String.Format("Autoroute pattern '{0}' does not exist", patternName));
+            }
+=======
+        public void AssignPattern(string contentType, string patternName, string pattern) {
+            // TODO: Sebastien - setting content type settings
+>>>>>>> other
+            _contentDefinitionManager.AlterTypeDefinition(contentType, type =>
+                type.WithPart("AutoroutePart",
+                part => part.WithSetting("AutorouteTypePartSettings.Patterns."+patternName, pattern);
+        }
+
+    }
+}

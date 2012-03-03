@@ -1,0 +1,54 @@
+﻿using Orchard.Autoroute.Models;
+using Orchard.ContentManagement.Drivers;
+using Orchard.Autoroute.ViewModels;
+using Orchard.Autoroute.Settings;
+
+namespace Orchard.Autoroute.Drivers {
+    public class AutoroutePartDriver : ContentPartDriver<AutoroutePart> {
+
+        protected override string Prefix {
+            get {
+                return "Autoroute";
+            }
+        }
+
+        protected override DriverResult Editor(AutoroutePart part, dynamic shapeHelper) {
+            return Editor(part, null, shapeHelper);
+        }
+
+        protected override DriverResult Editor(AutoroutePart part, ContentManagement.IUpdateModel updater, dynamic shapeHelper) {
+
+<<<<<<< local
+            var settings = part.TypePartDefinition.Settings.GetModel<AutorouteSettings>();
+            
+            
+            var viewModel = new AutoroutePartEditViewModel {
+                CurrentUrl = part.Alias
+=======
+            var settings = part.TypePartDefinition.Settings.GetModel<AutorouteTypePartSettings>();
+            var patterns = settings.GetPatternIds().Select(id => _autorouteService.GetPattern(id)).OrderBy(p=>p.DisplayText);
+            // Load pattern
+            if (part.StandardPattern == null) {
+                part.StandardPattern = _autorouteService.GetPattern("Content", "View", part.ContentItem);
+            }
+            var viewModel = new AutoroutePartEditViewModel(){
+                CurrentUrl = part.DisplayAlias
+>>>>>>> other
+            };
+            
+            if (updater != null && updater.TryUpdateModel(viewModel, Prefix, null, null)) {
+            }
+
+            viewModel.CurrentPattern = settings.Patterns[0];
+            viewModel.Patterns = settings.Patterns;
+
+            if (settings.PerItemConfiguration) {
+                // todo
+            }
+
+            return ContentShape("Parts_Autoroute_Edit", () => {
+                return shapeHelper.EditorTemplate(TemplateName: "Parts.Autoroute.Edit", Model: viewModel, Prefix: Prefix);
+            });
+        }
+    }
+}

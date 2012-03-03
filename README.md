@@ -1,8 +1,8 @@
 # Orchard CMS running on a MySQL database
 
-This repository is a copy of Orchard Web with latest code to 4 Januari 2012 from my fork of Orchard CMS source code with fixes to get it to install with a MySQL database.
+This repository is a copy of Orchard Web with latest code to 3 March 2012 from my fork of Orchard CMS source code with fixes to get it to install with a MySQL database.
 
-See my fork and what changes i have done in http://orchard.codeplex.com/SourceControl/network/Forks/RickardP/rickardporchard
+See my fork and what changes i have done in http://orchard.codeplex.com/SourceControl/network/forks/RickardP/orchardmysql
 
 # Installation notes
 
