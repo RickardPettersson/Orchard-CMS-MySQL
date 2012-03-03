@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Orchard.Events;
 
 namespace Orchard.Tokens {
     public interface ITokenizer : IDependency {

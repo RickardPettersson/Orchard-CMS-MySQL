@@ -15,7 +15,7 @@ namespace Orchard.Tokens.Providers {
         public Localizer T { get; set; }
 
         public void Describe(DescribeContext context) {
-            context.For("Date", T("Date"), T("Current Date tokens"))
+            context.For("Date", T("Date/time"), T("Current date/time tokens"))
                 .Token("Since", T("Since"), T("Relative to the current date/time."))
                 .Token("Format:*", T("Format:<date format>"), T("Optional format specifier (e.g. yyyy/MM/dd). See format strings at <a target=\"_blank\" href=\"http://msdn.microsoft.com/en-us/library/az4se3k1.aspx\">Standard Formats</a> and <a target=\"_blank\" href=\"http://msdn.microsoft.com/en-us/library/8kb3ddd4.aspx\">Custom Formats</a>"), "DateTime");
         }

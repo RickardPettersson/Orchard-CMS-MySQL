@@ -13,6 +13,7 @@ namespace Orchard.Rules.Providers {
         public NotificationActions(INotifier notifier, ITokenizer tokenizer) {
             _notifier = notifier;
             _tokenizer = tokenizer;
+            T = NullLocalizer.Instance;
         }
 
         public Localizer T { get; set; }

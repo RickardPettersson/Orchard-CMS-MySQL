@@ -33,7 +33,6 @@
 		<label for="filterResults">@T("Sort by:")</label>
         <select id="filterResults" name="@Html.NameOf(m => m.Options.Order)">
             @Html.SelectOption(Model.Options.Order, RulesOrder.Name, T("Name").ToString())
-            @Html.SelectOption(Model.Options.Order, RulesOrder.Creation, T("Email").ToString())
         </select>
 		<input type="hidden" name="Page" value="1" />
 		<label for="pageSize">@T("Show:")</label>
@@ -42,7 +41,7 @@
 			@foreach(int size in pageSizes.OrderBy(p => p)) {
 				@Html.SelectOption((int)Model.Pager.PageSize, size, size.ToString())
 			}
-		<select>
+		</select>
         <button type="submit" name="submit.Filter" value="@T("Filter")">@T("Filter")</button>
     </fieldset>
     <fieldset>		
@@ -69,7 +68,7 @@
                 </td>
                 <td>
                     @Html.ActionLink(T("Edit").ToString(), "Edit", new { entry.Rule.Id }) |
-                    @Html.ActionLink(T("Delete").ToString(), "Delete", new { entry.Rule.Id }) |
+                    @Html.ActionLink(T("Delete").ToString(), "Delete", new { entry.Rule.Id }, new { itemprop = "RemoveUrl UnsafeUrl" }) |
                     @if(entry.Rule.Enabled == false) {
                         @Html.ActionLink(T("Enable").ToString(), "Enable", new { entry.Rule.Id })
                     } else {

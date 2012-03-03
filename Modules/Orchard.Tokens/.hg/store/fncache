@@ -13,6 +13,7 @@ data/Tests/TokenManagerTests.cs.i
 data/Implementation/TokenManager.cs.i
 data/ITokenManager.cs.i
 data/Providers/UserTokens.cs.i
+data/Providers/TextTokens.cs.i
 data/ITokenizer.cs.i
 data/Tests/TestTokenProvider.cs.i
 data/ReplaceOptions.cs.i

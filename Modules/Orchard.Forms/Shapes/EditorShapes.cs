@@ -144,7 +144,7 @@ namespace Orchard.Forms.Shapes {
             }
             Output.WriteLine(div.ToString(TagRenderMode.StartTag));
 
-            var isCheckbox = "checkbox".Equals(Type, StringComparison.OrdinalIgnoreCase);
+            var isCheckbox = new [] {"checkbox", "radio"}.Any(x => x.Equals(Type, StringComparison.OrdinalIgnoreCase));
 
             IHtmlString labelHtml = null;
             if (Title != null) {
@@ -384,6 +384,11 @@ namespace Orchard.Forms.Shapes {
         [Shape]
         public IHtmlString Checkbox(dynamic Display, dynamic Shape) {
             return DisplayShapeAsInput(Display, Shape, "checkbox");
+        }
+
+        [Shape]
+        public IHtmlString Radio(dynamic Display, dynamic Shape) {
+            return DisplayShapeAsInput(Display, Shape, "radio");
         }
 
         static TagBuilder GetTagBuilder(string tagName, string id, IEnumerable<string> classes, IDictionary<string, string> attributes) {

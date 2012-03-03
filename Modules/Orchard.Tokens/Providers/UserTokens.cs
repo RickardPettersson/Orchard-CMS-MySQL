@@ -1,11 +1,14 @@
 ﻿using Orchard.Localization;
+using Orchard.Security;
 
 namespace Orchard.Tokens.Providers {
     public class UserTokens : ITokenProvider {
         private readonly IOrchardServices _orchardServices;
+        private static readonly IUser _anonymousUser = new AnonymousUser();
 
         public UserTokens(IOrchardServices orchardServices) {
             _orchardServices = orchardServices;
+
             T = NullLocalizer.Instance;
         }
 
@@ -20,7 +23,7 @@ namespace Orchard.Tokens.Providers {
         }
 
         public void Evaluate(EvaluateContext context) {
-            context.For("User", () => _orchardServices.WorkContext.CurrentUser)
+            context.For("User", () => _orchardServices.WorkContext.CurrentUser ?? _anonymousUser)
                 .Token("Name", u => u.UserName)
                 .Token("Email", u => u.Email)
                 .Token("Id", u => u.Id)
@@ -28,5 +31,24 @@ namespace Orchard.Tokens.Providers {
             // todo: cross-module dependency -- should be provided by the User module?
             //.Token("Roles", user => string.Join(", ", user.As<UserRolesPart>().Roles.ToArray()));
         }
+
+        public class AnonymousUser : IUser {
+            public string UserName {
+                get { return "Anonymous"; }
+            }
+
+            public string Email {
+                get { return string.Empty; }
+            }
+
+            public ContentManagement.ContentItem ContentItem {
+                get { return null; }
+            }
+
+            public int Id {
+                get { return -1; }
+            }
+        }
+
     }
 }

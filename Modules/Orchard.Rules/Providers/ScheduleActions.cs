@@ -5,6 +5,7 @@ using Orchard.Rules.Models;
 using Orchard.Rules.Services;
 using Orchard.Localization;
 using Orchard.Services;
+using Orchard.Mvc.Html;
 using Orchard.Tasks.Scheduling;
 using Orchard.Tokens;
 
@@ -33,14 +34,24 @@ namespace Orchard.Rules.Providers {
             _scheduledActionRecordRepository = scheduledActionRecordRepository;
             _clock = clock;
             _tokenizer = tokenizer;
+            T = NullLocalizer.Instance;
         }
 
         public Localizer T { get; set; }
 
         public void Describe(DescribeActionContext context) {
             context.For("System", T("System"), T("System"))
-                .Element("Delayed", T("Delayed Action"), T("Triggers some actions after a specific amount of time."), CreateDelayedAction, actionContext => T("Triggers \"{0}\" in {1}", "foo", "bar"), "ActionDelay");
-//                .Element("Scheduled", T("Scheduled Action"), T("Triggers some actions at a specific date and time."), CreateScheduledAction, actionContext => T("Triggers \"{0}\" on {1}", "foo", "bar"), "ActionSchedule");
+                .Element("Delayed", T("Delayed Action"), T("Triggers some actions after a specific amount of time."), CreateDelayedAction, DisplayDelayedAction, "ActionDelay");
+        }
+
+        private LocalizedString DisplayDelayedAction(ActionContext context) {
+            var amount = Convert.ToInt32(context.Properties["Amount"]);
+            var type = context.Properties["Unity"];
+            var ruleId = Convert.ToInt32(context.Properties["RuleId"]);
+
+            var rule = _repository.Get(ruleId);
+
+            return T.Plural("Triggers \"{1}\" in {0} {2}", "Triggers \"{1}\" in {0} {2}s", amount, rule.Name, type);
         }
 
         private bool CreateDelayedAction(ActionContext context) {

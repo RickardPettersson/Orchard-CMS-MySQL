@@ -43,7 +43,7 @@ namespace Orchard.Rules.Controllers {
             return View(viewModel);
         }
 
-
+        [HttpPost]
         public ActionResult Delete(int id, int actionId) {
             if (!Services.Authorizer.Authorize(StandardPermissions.SiteOwner, T("Not authorized to manage rules")))
                 return new HttpUnauthorizedResult();
@@ -58,7 +58,7 @@ namespace Orchard.Rules.Controllers {
             if (!Services.Authorizer.Authorize(StandardPermissions.SiteOwner, T("Not authorized to manage rules")))
                 return new HttpUnauthorizedResult();
 
-            var action = _rulesManager.DescribeActions().SelectMany(x => x.Descriptors).Where(x => x.Category == category && x.Type == type).FirstOrDefault();
+            var action = _rulesManager.DescribeActions().SelectMany(x => x.Descriptors).FirstOrDefault(x => x.Category == category && x.Type == type);
 
             if (action == null) {
                 return HttpNotFound();
@@ -96,7 +96,7 @@ namespace Orchard.Rules.Controllers {
             // bind form with existing values).
             if (actionId != -1) {
                 var rule = _rulesServices.GetRule(id);
-                var actionRecord = rule.Actions.Where(a => a.Id == actionId).FirstOrDefault();
+                var actionRecord = rule.Actions.FirstOrDefault(a => a.Id == actionId);
                 if (actionRecord != null) {
                     var parameters = FormParametersHelper.FromString(actionRecord.Parameters);
                     _formManager.Bind(form, new DictionaryValueProvider<string>(parameters, CultureInfo.InvariantCulture));
@@ -111,7 +111,7 @@ namespace Orchard.Rules.Controllers {
         public ActionResult EditPost(int id, string category, string type, [DefaultValue(-1)]int actionId, FormCollection formCollection) {
             var rule = _rulesServices.GetRule(id);
 
-            var actionRecord = rule.Actions.Where(a => a.Id == actionId).FirstOrDefault();
+            var actionRecord = rule.Actions.FirstOrDefault(a => a.Id == actionId);
 
             // add new action record if it's a newly created action
             if (actionRecord == null) {
@@ -119,10 +119,10 @@ namespace Orchard.Rules.Controllers {
                 rule.Actions.Add(actionRecord);
             }
 
-            var action = _rulesManager.DescribeActions().SelectMany(x => x.Descriptors).Where(x => x.Category == category && x.Type == type).FirstOrDefault();
+            var action = _rulesManager.DescribeActions().SelectMany(x => x.Descriptors).FirstOrDefault(x => x.Category == category && x.Type == type);
 
             // validating form values
-            _formManager.Validate(new ValidatingContext { FormName = action.Form, ModelState = ModelState, ValueProdiver = ValueProvider });
+            _formManager.Validate(new ValidatingContext { FormName = action.Form, ModelState = ModelState, ValueProvider = ValueProvider });
 
             if (ModelState.IsValid) {
                 var dictionary = formCollection.AllKeys.ToDictionary(key => key, formCollection.Get);
@@ -135,7 +135,12 @@ namespace Orchard.Rules.Controllers {
 
             // model is invalid, display it again
             var form = _formManager.Build(action.Form);
+
+            // Cancel the current transaction to prevent records from begin created
+            Services.TransactionManager.Cancel();
+
             AddSubmitButton(form);
+
             _formManager.Bind(form, formCollection);
             var viewModel = new EditActionViewModel { Id = id, Action = action, Form = form };
 

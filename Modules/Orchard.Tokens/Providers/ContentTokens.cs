@@ -29,9 +29,11 @@ namespace Orchard.Tokens.Providers {
                 .Token("Date", T("Content Date"), T("Date the content was created."), "DateTime")
                 .Token("Identity", T("Identity"), T("Identity of the content."))
                 .Token("ContentType", T("Content Type"), T("The name of the item Content Type."), "TypeDefinition")
-                .Token("DisplayText", T("Display Text"), T("Title of the content."))
+                .Token("DisplayText", T("Display Text"), T("Title of the content."),"Text")
                 .Token("DisplayUrl", T("Display Url"), T("Url to display the content."), "Url")
-                .Token("EditUrl", T("Edit Url"), T("Url to edit the content."), "Url");
+                .Token("EditUrl", T("Edit Url"), T("Url to edit the content."), "Url")
+                .Token("Container", T("Container"), T("The container Content Item."), "Content")
+                ;
 
             context.For("TextField", T("Text Field"), T("Tokens for Text Fields"))
                 .Token("Length", T("Length"), T("The length of the field."));
@@ -41,7 +43,7 @@ namespace Orchard.Tokens.Providers {
 
             context.For("TypeDefinition", T("Type Definition"), T("Tokens for Content Types"))
                 .Token("Name", T("Name"), T("Name of the content type."))
-                .Token("DisplayName", T("Display Name"), T("Display name of the content type."))
+                .Token("DisplayName", T("Display Name"), T("Display name of the content type."), "Text")
                 .Token("Parts", T("Parts"), T("List of the attached part names."))
                 .Token("Fields", T("Fields"), T("Fields for each of the attached parts. For example, Fields.Page.Approved."));
         }
@@ -52,15 +54,24 @@ namespace Orchard.Tokens.Providers {
                 .Token("Author", AuthorName)
                 .Chain("Author", "User", content => content.As<ICommonPart>().Owner)
                 .Token("Date", content => content.As<ICommonPart>().CreatedUtc)
-                .Chain("Date", "DateTime", content => content.As<ICommonPart>().CreatedUtc)
+                .Chain("Date", "Date", content => content.As<ICommonPart>().CreatedUtc)
                 .Token("Identity", content => _contentManager.GetItemMetadata(content).Identity.ToString())
                 .Token("ContentType", content => content.ContentItem.TypeDefinition.DisplayName)
                 .Chain("ContentType", "TypeDefinition", content => content.ContentItem.TypeDefinition)
                 .Token("DisplayText", content => _contentManager.GetItemMetadata(content).DisplayText)
+                .Chain("DisplayText", "Text", content => _contentManager.GetItemMetadata(content).DisplayText)
                 .Token("DisplayUrl", content => new UrlHelper(_workContextAccessor.GetContext().HttpContext.Request.RequestContext).RouteUrl(_contentManager.GetItemMetadata(content).DisplayRouteValues))
                 .Chain("DisplayUrl", "Url", content => new UrlHelper(_workContextAccessor.GetContext().HttpContext.Request.RequestContext).RouteUrl(_contentManager.GetItemMetadata(content).DisplayRouteValues))
                 .Token("EditUrl", content => new UrlHelper(_workContextAccessor.GetContext().HttpContext.Request.RequestContext).RouteUrl(_contentManager.GetItemMetadata(content).EditorRouteValues))
                 .Chain("EditUrl", "Url", content => new UrlHelper(_workContextAccessor.GetContext().HttpContext.Request.RequestContext).RouteUrl(_contentManager.GetItemMetadata(content).EditorRouteValues))
+                .Token("Container", content => {
+                    var container = Container(content);
+                    if(container == null) {
+                        return string.Empty;
+                    }
+                    return _contentManager.GetItemMetadata(container).DisplayText;
+                })
+                .Chain("Container", "Content", content => Container(content))
                 ;
 
             if (context.Target == "Content") {
@@ -90,6 +101,7 @@ namespace Orchard.Tokens.Providers {
             context.For<ContentTypeDefinition>("TypeDefinition")
                 .Token("Name", def => def.Name)
                 .Token("DisplayName", def => def.DisplayName)
+                .Chain("DisplayName", "Text", def => def.DisplayName)
                 .Token("Parts", def => string.Join(", ", def.Parts.Select(x => x.PartDefinition.Name).ToArray()))
                 .Token("Fields", def => string.Join(", ", def.Parts.SelectMany(x => x.PartDefinition.Fields.Select(x2 => x2.FieldDefinition.Name + " " + x.PartDefinition.Name + "." + x2.Name)).ToArray()));
         }
@@ -106,6 +118,15 @@ namespace Orchard.Tokens.Providers {
                 .Where(part => part.PartDefinition.Name == partName)
                 .SelectMany(part => part.Fields.Where(field => field.Name == fieldName))
                 .SingleOrDefault();
+        }
+
+        private IContent Container(IContent content) {
+            var commonPart = content.As<ICommonPart>();
+            if(commonPart == null) {
+                return null;
+            }
+
+            return commonPart.Container;
         }
     }
 }

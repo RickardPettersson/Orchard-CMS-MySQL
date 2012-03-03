@@ -1,4 +1,4 @@
-﻿@model EditRuleViewModel
+﻿@model Orchard.Rules.ViewModels.EditRuleViewModel
 
 @{
     Layout.Title = T("Edit Rule").Text;
@@ -27,7 +27,7 @@
         <thead>
             <tr>
                 <th scope="col" >@T("Description")</th>
-                <th scope="col" style="width:300px">&nbsp;</th>
+                <th scope="col" class="actions">&nbsp;</th>
             </tr>
         </thead>
     @foreach (var ev in Model.Events)
@@ -36,7 +36,7 @@
             <td>@ev.DisplayText</td>
             <td>
                 @Html.ActionLink(T("Edit").Text, "Edit", new { controller = "Event", id = Model.Id, category = ev.Category, type = ev.Type, eventId = ev.EventRecordId }) |
-                @Html.ActionLink(T("Delete").Text, "Delete", new { controller = "Event", id = Model.Id, eventId = ev.EventRecordId })
+                @Html.ActionLink(T("Delete").Text, "Delete", new { controller = "Event", id = Model.Id, eventId = ev.EventRecordId }, new { itemprop = "RemoveUrl UnsafeUrl" })
             </td>    
         </tr>
     }
@@ -64,7 +64,7 @@
         <thead>
             <tr>
                 <th scope="col" >@T("Description")</th>
-                <th scope="col" style="width:300px">&nbsp;</th>
+                <th scope="col" class="actions">&nbsp;</th>
             </tr>
         </thead>
     @foreach (var action in Model.Actions)
@@ -73,7 +73,7 @@
             <td>@action.DisplayText</td>
             <td>
                 @Html.ActionLink(T("Edit").Text, "Edit", new { controller = "Action", id = Model.Id, category = action.Category, type = action.Type, actionId = action.ActionRecordId }) |
-                @Html.ActionLink(T("Delete").Text, "Delete", new { controller = "Action", id = Model.Id, actionId = action.ActionRecordId }) |
+                @Html.ActionLink(T("Delete").Text, "Delete", new { controller = "Action", id = Model.Id, actionId = action.ActionRecordId }, new { itemprop = "RemoveUrl UnsafeUrl" }) |
                 @if(action != Model.Actions.First()) {
                     @Html.ActionLink(T("Up").Text, "Move", new { controller = "Admin", id = Model.Id, direction = "up", actionId = action.ActionRecordId }) @:|
                 }

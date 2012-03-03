@@ -26,7 +26,7 @@ namespace Orchard.Forms.Services {
 
     public class ValidatingContext {
         public string FormName { get; set; }
-        public IValueProvider ValueProdiver { get; set; }
+        public IValueProvider ValueProvider { get; set; }
         public ModelStateDictionary ModelState { get; set; }
     }
 }

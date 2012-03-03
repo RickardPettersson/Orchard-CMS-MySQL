@@ -14,10 +14,15 @@ namespace Orchard.Tokens {
             return Convert.ToString(value);
         }
 
+        public static string UrlEncode(string token, object value) {
+            return HttpUtility.UrlEncode(value.ToString());
+        }
+
         public static ReplaceOptions Default {
             get {
                 return new ReplaceOptions { Encoding = HtmlEncode };
             }
         }
+
     }
 }

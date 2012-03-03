@@ -10,6 +10,7 @@ namespace Orchard.Rules.Providers {
 
         public NotificationForms(IShapeFactory shapeFactory) {
             Shape = shapeFactory;
+            T = NullLocalizer.Instance;
         }
 
         public void Describe(DescribeContext context) {

@@ -108,7 +108,7 @@ namespace Orchard.Rules.Controllers {
             var e = _rulesManager.DescribeEvents().SelectMany(x => x.Descriptors).Where(x => x.Category == category && x.Type == type).FirstOrDefault();
 
             // validating form values
-            _formManager.Validate(new ValidatingContext { FormName = e.Form, ModelState = ModelState, ValueProdiver = ValueProvider });
+            _formManager.Validate(new ValidatingContext { FormName = e.Form, ModelState = ModelState, ValueProvider = ValueProvider });
 
             if (ModelState.IsValid) {
                 var dictionary = formCollection.AllKeys.ToDictionary(key => key, formCollection.Get);

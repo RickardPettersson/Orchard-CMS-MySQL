@@ -258,6 +258,7 @@ namespace Orchard.Rules.Controllers {
             return EditPost(viewModel);
         }
 
+        [HttpPost]
         public ActionResult Delete(int id) {
             if (!Services.Authorizer.Authorize(StandardPermissions.SiteOwner, T("Not authorized to manage rules")))
                 return new HttpUnauthorizedResult();

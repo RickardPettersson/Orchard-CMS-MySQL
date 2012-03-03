@@ -16,7 +16,7 @@ namespace Orchard.Tokens.Implementation {
             foreach (var provider in _providers) {
                 provider.Describe(context);
             }
-            return context.Describe();
+            return context.Describe((targets ?? Enumerable.Empty<string>()).ToArray());
         }
 
         public IDictionary<string, object> Evaluate(string target, IDictionary<string, string> tokens, IDictionary<string, object> data) {
@@ -181,8 +181,10 @@ namespace Orchard.Tokens.Implementation {
         private class DescribeContextImpl : DescribeContext {
             private readonly Dictionary<string, DescribeFor> _describes = new Dictionary<string, DescribeFor>();
 
-            public override IEnumerable<TokenTypeDescriptor> Describe() {
-                return _describes.Select(kp => new TokenTypeDescriptor {
+            public override IEnumerable<TokenTypeDescriptor> Describe(params string[] targets) {
+                return _describes
+                    .Where(kp => targets == null || targets.Length == 0 || targets.Contains(kp.Key))
+                    .Select(kp => new TokenTypeDescriptor {
                     Target = kp.Key,
                     Name = kp.Value.Name,
                     Description = kp.Value.Description,

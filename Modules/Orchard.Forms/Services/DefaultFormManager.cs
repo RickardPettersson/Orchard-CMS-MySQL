@@ -56,7 +56,13 @@ namespace Orchard.Forms.Services {
             if (name != null) {
                 ValueProviderResult value = valueProvider.GetValue(prefix + name);
                 if (value != null) {
-                    shape.Value = value.AttemptedValue;
+                    if (shape.Metadata.Type == "Checkbox" || shape.Metadata.Type == "Radio") {
+                        shape.Checked = Convert.ToString(shape.Value) == Convert.ToString(value.AttemptedValue);
+                    }
+                    else {
+                        shape.Value = value.AttemptedValue;
+                    }
+                    
                 }
             }
         }

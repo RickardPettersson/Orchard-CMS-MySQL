@@ -16,6 +16,7 @@ namespace Orchard.Rules.Providers {
         public ScheduleForms(IShapeFactory shapeFactory, IRepository<RuleRecord> repository) {
             _repository = repository;
             Shape = shapeFactory;
+            T = NullLocalizer.Instance;
         }
 
         public void Describe(DescribeContext context) {
@@ -69,15 +70,15 @@ namespace Orchard.Rules.Providers {
 
         public override void Validating(ValidatingContext context) {
             if (context.FormName == "ActionDelay") {
-                if (context.ValueProdiver.GetValue("Amount").AttemptedValue == String.Empty) {
+                if (context.ValueProvider.GetValue("Amount").AttemptedValue == String.Empty) {
                     context.ModelState.AddModelError("Amount", T("You must provide an Amount").Text);
                 }
 
-                if (context.ValueProdiver.GetValue("Unity").AttemptedValue == String.Empty) {
+                if (context.ValueProvider.GetValue("Unity").AttemptedValue == String.Empty) {
                     context.ModelState.AddModelError("Unity", T("You must provide a Type").Text);
                 }
 
-                if (context.ValueProdiver.GetValue("RuleId").AttemptedValue == String.Empty) {
+                if (context.ValueProvider.GetValue("RuleId").AttemptedValue == String.Empty) {
                     context.ModelState.AddModelError("RuleId", T("You must select at least one Rule").Text);
                 }
             }

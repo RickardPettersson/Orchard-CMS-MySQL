@@ -134,7 +134,7 @@
     <Compile Include="Providers\ScheduleActions.cs" />
     <Compile Include="Providers\NotificationForms.cs" />
     <Compile Include="Providers\NotificationActions.cs" />
-    <Compile Include="Services\ActionParametersHelper.cs" />
+    <Compile Include="Services\FormParametersHelper.cs" />
     <Compile Include="Services\RulesServices.cs" />
     <Compile Include="Services\IActionProvider.cs" />
     <Compile Include="Services\IEventProvider.cs" />
