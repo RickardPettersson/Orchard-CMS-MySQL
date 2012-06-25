@@ -1,0 +1,15 @@
+data/Services/IFormEvents.cs.i
+data/Module.txt.i
+data/Orchard.Forms.csproj.i
+data/Styles/Web.config.i
+data/Web.config.i
+data/Scripts/Web.config.i
+data/Properties/AssemblyInfo.cs.i
+data/.hgignore.i
+data/Views/Web.config.i
+data/Services/IFormProvider.cs.i
+data/Services/IFormManager.cs.i
+data/Services/FormProcessor.cs.i
+data/Shapes/PropertyItemsBehavior.cs.i
+data/Services/DefaultFormManager.cs.i
+data/Shapes/EditorShapes.cs.i

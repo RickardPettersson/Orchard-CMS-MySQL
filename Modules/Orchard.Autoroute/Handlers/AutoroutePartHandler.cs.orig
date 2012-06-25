@@ -1,0 +1,52 @@
+﻿using System;
+using System.Linq;
+using Orchard.ContentManagement.Handlers;
+using Orchard.Autoroute.Models;
+using Orchard.Data;
+using Orchard.Autoroute.Services;
+
+namespace Orchard.Autoroute.Handlers {
+    public class AutoroutePartHandler : ContentHandler {
+
+        private readonly Lazy<IAutorouteService> _autorouteService;
+
+        public AutoroutePartHandler(
+            IRepository<AutoroutePartRecord> _autoroutePartRepository,
+            Lazy<IAutorouteService> autorouteService) {
+
+            Filters.Add(StorageFilter.For(_autoroutePartRepository));
+            _autorouteService = autorouteService;
+
+            // When items are created we can alias the route
+            OnCreated<AutoroutePart>((ctx, part) => {
+                // For non-draftable items
+                if (part.ContentItem.VersionRecord == null) {
+                    GenerateAliases(part);
+                }
+            });
+
+            OnPublished<AutoroutePart>((ctx, part) => {
+                GenerateAliases(part);
+            });
+
+            // Remove alias if removed or unpublished
+            OnRemoved<AutoroutePart>((ctx, part) => RemoveAlias(part));
+            OnUnpublished<AutoroutePart>((ctx, part) => RemoveAlias(part));
+
+            // Register alias as identity
+            OnGetContentItemMetadata<AutoroutePart>((ctx, part) => {
+                if (part.Alias != null)
+                    ctx.Metadata.Identity.Add("alias", part.Alias);
+            });
+        }
+
+        private void GenerateAliases(AutoroutePart part) {
+            var result = _autorouteService.Value.GenerateAliases(part.ContentItem, "Content");
+            var viewPath = result.FirstOrDefault(p => p.Item1 == "View");
+            part.Alias = viewPath == null ? null : viewPath.Item2;
+        }
+        void RemoveAlias(AutoroutePart part) {
+            _autorouteService.Value.RemoveAliases(part.ContentItem, "Content");
+        }
+    }
+}

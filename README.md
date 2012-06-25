@@ -1,12 +1,12 @@
 # Orchard CMS running on a MySQL database
 
-This repository is a copy of Orchard Web with latest code to 3 March 2012 from my fork of Orchard CMS source code with fixes to get it to install with a MySQL database.
+This repository is a copy of Orchard Web 1.4.2 from my fork of Orchard CMS source code with fixes to get it to install with a MySQL database.
 
-See my fork and what changes i have done in http://orchard.codeplex.com/SourceControl/network/forks/RickardP/orchardmysql
+See my fork and what changes i have done in http://orchard.codeplex.com/SourceControl/network/forks/RickardP/OrchardMySQL142
 
 # Installation notes
 
-To get everything to work like it should you need to set read and write permissions for IIS_IUSRS on the folders: App_Data, Media, Modules, Themes
+To get everything to work like it should you need to set read and write permissions for IIS_IUSRS on the folders: Media, Modules, Themes
 
 When you put the files on the your webserver and set the read and write permissions you going to the url where you put the project exempel if you running localhost like me go to http://localhost and you get a form page that you fill in to setup Orchard as normal but there is some settings for MySQL that has been added.
 

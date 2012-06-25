@@ -1,0 +1,27 @@
+﻿using System.Collections.Generic;
+using Orchard.Autoroute.Settings;
+
+namespace Orchard.Autoroute.ViewModels {
+
+    public class AutoroutePartEditViewModel {
+
+        public string CustomPattern { get; set; }
+        public bool UseCustomPattern { get; set; }
+
+<<<<<<< local
+        public RoutePattern CurrentPattern { get; set; }
+=======
+        public int? UsePatternId { get; set; }
+>>>>>>> other
+
+<<<<<<< local
+        public IEnumerable<RoutePattern> Patterns { get; set; }
+
+=======
+>>>>>>> other
+        public bool AllowConfiguration { get; set; }
+        public bool AllowCustom { get; set; }
+
+        public string CurrentUrl { get; set; }
+    }
+}
